@@ -596,68 +596,76 @@
         buildFilter: function() {
 
             // Build filter if filtering OR case insensitive filtering is enabled and the number of options exceeds (or equals) enableFilterLength.
-            if (this.options.enableFiltering || this.options.enableCaseInsensitiveFiltering) {
-                var enableFilterLength = Math.max(this.options.enableFiltering, this.options.enableCaseInsensitiveFiltering);
+            
+            var enableFiltering = this.options.enableFiltering || this.options.enableCaseInsensitiveFiltering;
 
-                if (this.$select.find('option').length >= enableFilterLength) {
+            if(!enableFiltering) {
+                return;
+            }
 
-                    this.$filter = $(this.options.templates.filter);
-                    $('input', this.$filter).attr('placeholder', this.options.filterPlaceholder);
-                    this.$ul.prepend(this.$filter);
+            var enableFilterLength = Math.max(this.options.enableFiltering, this.options.enableCaseInsensitiveFiltering);
 
-                    this.$filter.val(this.query).on('click', function(event) {
-                        event.stopPropagation();
-                    }).on('input keydown', $.proxy(function(event) {
-                        // This is useful to catch "keydown" events after the browser has updated the control.
-                        clearTimeout(this.searchTimeout);
+            var enableByLength = this.$select.find('option').length >= enableFilterLength;
 
-                        this.searchTimeout = this.asyncFunction($.proxy(function() {
+            if(!enableByLength) {
+                return;
+            }
 
-                            if (this.query !== event.target.value) {
-                                this.query = event.target.value;
+            this.$filter = $(this.options.templates.filter);
+            $('input', this.$filter).attr('placeholder', this.options.filterPlaceholder);
+            this.$ul.prepend(this.$filter);
 
-                                $.each($('li', this.$ul), $.proxy(function(index, element) {
-                                    var value = $('input', element).val();
-                                    var text = $('label', element).text();
+            this.$filter.val(this.query).on('click', function(event) {
+                event.stopPropagation();
+            }).on('input keydown', $.proxy(function(event) {
+                // This is useful to catch "keydown" events after the browser has updated the control.
+                clearTimeout(this.searchTimeout);
 
-                                    var filterCandidate = '';
-                                    if ((this.options.filterBehavior === 'text')) {
-                                        filterCandidate = text;
-                                    }
-                                    else if ((this.options.filterBehavior === 'value')) {
-                                        filterCandidate = value;
-                                    }
-                                    else if (this.options.filterBehavior === 'both') {
-                                        filterCandidate = text + '\n' + value;
-                                    }
+                this.searchTimeout = this.asyncFunction($.proxy(function() {
 
-                                    if (value !== this.options.selectAllValue && text) {
-                                        // by default lets assume that element is not
-                                        // interesting for this search
-                                        var showElement = false;
+                    if (this.query !== event.target.value) {
+                        this.query = event.target.value;
 
-                                        if (this.options.enableCaseInsensitiveFiltering && filterCandidate.toLowerCase().indexOf(this.query.toLowerCase()) > -1) {
-                                            showElement = true;
-                                        }
-                                        else if (filterCandidate.indexOf(this.query) > -1) {
-                                            showElement = true;
-                                        }
+                        $.each($('li', this.$ul), $.proxy(function(index, element) {
+                            var value = $('input', element).val();
+                            var text = $('label', element).text();
 
-                                        if (showElement) {
-                                            $(element).show();
-                                        }
-                                        else {
-                                            $(element).hide();
-                                        }
-                                    }
-                                }, this));
+                            var filterCandidate = '';
+                            if ((this.options.filterBehavior === 'text')) {
+                                filterCandidate = text;
+                            }
+                            else if ((this.options.filterBehavior === 'value')) {
+                                filterCandidate = value;
+                            }
+                            else if (this.options.filterBehavior === 'both') {
+                                filterCandidate = text + '\n' + value;
                             }
 
-                            this.updateSelectAll();
-                        }, this), 300, this);
-                    }, this));
-                }
-            }
+                            if (value !== this.options.selectAllValue && text) {
+                                // by default lets assume that element is not
+                                // interesting for this search
+                                var showElement = false;
+
+                                if (this.options.enableCaseInsensitiveFiltering && filterCandidate.toLowerCase().indexOf(this.query.toLowerCase()) > -1) {
+                                    showElement = true;
+                                }
+                                else if (filterCandidate.indexOf(this.query) > -1) {
+                                    showElement = true;
+                                }
+
+                                if (showElement) {
+                                    $(element).show();
+                                }
+                                else {
+                                    $(element).hide();
+                                }
+                            }
+                        }, this));
+                    }
+
+                    this.updateSelectAll();
+                }, this), 300, this);
+            }, this));
         },
 
         /**
