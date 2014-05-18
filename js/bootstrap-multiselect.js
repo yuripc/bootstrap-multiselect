@@ -139,7 +139,8 @@
                     else {
                         var selected = '';
                         options.each(function() {
-                            var label = ($(this).attr('label') !== undefined) ? $(this).attr('label') : $(this).html();
+                            var $this = $(this);
+                            var label = ($this.attr('label') !== undefined) ? $this.attr('label') : $this.html();
 
                             selected += label + ', ';
                         });
@@ -495,20 +496,22 @@
          * @param {jQuery} element
          */
         createOptionValue: function(element) {
-            if ($(element).is(':selected')) {
-                $(element).prop('selected', true);
+            var $element = $(element);
+
+            if ($element.is(':selected')) {
+                $element.prop('selected', true);
             }
 
             // Support the label attribute on options.
             var label = this.options.label(element);
-            var value = $(element).val();
+            var value = $element.val();
             var inputType = this.options.multiple ? "checkbox" : "radio";
 
             var $li = $(this.options.templates.li);
             $('label', $li).addClass(inputType);
             $('label', $li).append('<input type="' + inputType + '" name="' + this.options.checkboxName + '" />');
 
-            var selected = $(element).prop('selected') || false;
+            var selected = $element.prop('selected') || false;
             var $checkbox = $('input', $li);
             $checkbox.val(value);
 
@@ -522,7 +525,7 @@
 
             this.$ul.append($li);
 
-            if ($(element).is(':disabled')) {
+            if ($element.is(':disabled')) {
                 $checkbox.attr('disabled', 'disabled')
                     .prop('disabled', true)
                     .parents('li')
@@ -674,11 +677,13 @@
          */
         refresh: function() {
             $('option', this.$select).each($.proxy(function(index, element) {
+                var $element = $(element);
+
                 var $input = $('li input', this.$ul).filter(function() {
-                    return $(this).val() === $(element).val();
+                    return $(this).val() === $element.val();
                 });
 
-                if ($(element).is(':selected')) {
+                if ($element.is(':selected')) {
                     $input.prop('checked', true);
 
                     if (this.options.selectedClass) {
@@ -695,7 +700,7 @@
                     }
                 }
 
-                if ($(element).is(":disabled")) {
+                if ($element.is(':disabled')) {
                     $input.attr('disabled', 'disabled')
                         .prop('disabled', true)
                         .parents('li')
